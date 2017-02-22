@@ -156,5 +156,4 @@ if __name__ == "__main__":
     sha1.update(str(time.time())[0:7])
     sha1.update('SY@20151017')
     token = sha1.hexdigest()
-    print 'http://api.shenyou.tv/admin.php?m=Admin&c=Spider&a=anchors&token=' + token
     run('http://api.shenyou.tv/admin.php?m=Admin&c=Spider&a=anchors&token=' + token, '2')
