@@ -1,4 +1,6 @@
-# coding=utf-8
+#-*-coding:utf-8-*-
+#!/usr/bin/python3.5
+
 from sqlalchemy import create_engine, Column, Integer, String, Sequence, Text, Index, SmallInteger, DECIMAL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -232,8 +234,9 @@ class Shopping_Goods(Base_Model):
     views = Column(String(50))
     status = Column(SmallInteger, default=99)
     
-
+# 数据库连接类
 class Sy_Session(object):
+    # 私有静态变量
     __session = None
 
     # 数据库创建
@@ -246,7 +249,7 @@ class Sy_Session(object):
     def drop_db():
         Base_Model.metadata.drop_all(bind=eng)
     
-    # 获取数据库连接
+    # 获取单例数据库连接
     @staticmethod
     def get_session():
         if Sy_Session.__session is None:

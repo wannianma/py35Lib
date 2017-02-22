@@ -1,5 +1,5 @@
 #-*-coding:utf-8-*-
-#!/usr/bin/python
+#!/usr/bin/python3.5
 
 #
 # Send Email with Content Log
@@ -22,7 +22,39 @@ import json,time
 # disable Requests log messages
 logging.getLogger("requests").setLevel(logging.WARNING)
 
+class Sy_Request(object):
+    ## Class Attribute
+    name = 'Request'
 
+    def __init__(self):
+        # 抓取失败重连次数
+        self.reconnect_time = 0
+    
+    # Get方式获取数据
+    def get_html(self, url, type=None):
+        html = ''
+        res_code = 200
+        try:
+            res_code, html = self.
+
+    # 通过requests包获取HTML页面
+    def _fetch_data_by_requests(self, url, is_json = False):
+        timeout = config.TIMEOUT if config.TIMEOUT else 10
+        headers = config.HEADERS if config.HEADERS else {}
+        headers['user-agent'] = Sy_Request.random_user_agent()
+        s = requests.session()
+        res = s.get(url, timeout=timeout, allow_redirects=True, headers=headers,cookies={}, verify=False)
+        if is_json:
+            return res.status_code, res.json()
+        else:
+            return res.status_code, res.content
+        
+    # 获取随机User-agent
+    @staticmethod
+    def random_user_agent():
+        return random.choice(config.USER_AGENTS)
+        
+    
 def get_html(url, is_json=False, is_js=False, connect_time=0):
     html = ''
     res_code = 200
