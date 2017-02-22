@@ -4,7 +4,7 @@
 from collections import deque
 
 
-class Queue(object):
+class Sy_Queue(object):
 
     def __init__(self):
         self.q = deque()
@@ -41,8 +41,8 @@ class Queue(object):
         except IndexError:
             return None
 
-    def getjobs(self, limit=None):
-        jobs = [self.rpop() for i in xrange(limit)]
+    def getjobs(self, limit=100):
+        jobs = [self.rpop() for i in range(limit)]
         return filter(None, jobs)
 
     def get(self, index):
@@ -61,9 +61,6 @@ class Queue(object):
 
 
 if __name__ == '__main__':
-    q = Queue()
-    for i in xrange(1, 100):
-        q.lpush('{"url": "%s"}' % i)
-    print q.getjobs(10)
-    print q.get(0)
-    print q.size()
+    q = Sy_Queue()
+    for i in range(1, 100):
+        q.lpush('{"url": "%s"}' % i)()
