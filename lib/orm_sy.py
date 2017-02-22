@@ -255,6 +255,7 @@ class Sy_Session(object):
             DB_session = sessionmaker(bind=eng)
             ## 生成数据库连接实例
             Sy_Session.__session = DB_session()
+            # 注册销毁数据库连接方法
             atexit.register(Sy_Session.del_session)
         
         return Sy_Session.__session
