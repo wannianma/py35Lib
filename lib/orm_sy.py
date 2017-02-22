@@ -2,9 +2,12 @@
 from sqlalchemy import create_engine, Column, Integer, String, Sequence, Text, Index, SmallInteger, DECIMAL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from lib.config import DB_URI
+from config import DB_URI
+from log_sy import logger
+import atexit
 
-from pprint import pprint
+# 创建对象的基类:
+Base_Model = declarative_base()
 
 class User(Base_Model):
     __tablename__ = 'users'
@@ -230,26 +233,48 @@ class Shopping_Goods(Base_Model):
     status = Column(SmallInteger, default=99)
     
 
+class Sy_Session(object):
+    __session = None
 
-def init_db():
-    Base_Model.metadata.create_all(bind=eng)
+    # 数据库创建
+    @staticmethod
+    def init_db():
+        Base_Model.metadata.create_all(bind=eng)
+    
+    # 数据库销毁
+    @staticmethod
+    def drop_db():
+        Base_Model.metadata.drop_all(bind=eng)
+    
+    # 获取数据库连接
+    @staticmethod
+    def get_session():
+        if Sy_Session.__session is None:
+            eng = create_engine(DB_URI)
+            Base_Model = declarative_base()
+            DB_session = sessionmaker(bind=eng)
+            ## 生成数据库连接实例
+            Sy_Session.__session = DB_session()
+            atexit.register(Sy_Session.del_session)
+        
+        return Sy_Session.__session
 
+    # 销毁数据库连接
+    @staticmethod
+    def del_session():
+        try:
+            Sy_Session.__session.commit()
+        except Exception as e:
+            logger.error('Session Commit in del_session, info : {0}'.format(e))
+        finally:
+            Sy_Session.__session.close()
+            logger.info('session close succes')
 
-def drop_db():
-    Base_Model.metadata.drop_all(bind=eng)
-
-def get_db_Conn():
-    eng = create_engine(DB_URI)
-    Base_Model = declarative_base()
-    DB_session = sessionmaker(bind=eng)
-    ## 生成数据库连接实例
-    session = DB_session()
-
-
-def get_result(rs):
-    print '-' * 20
-    for user in rs:
-        print user.name
+def get_result():
+    session = Sy_Session.get_session()
+    goods = session.query(Shopping_Goods)
+    for good in goods:
+        print(good.title)
 
 if __name__ == '__main__':
-    pass
+    get_result()
