@@ -3,7 +3,7 @@
 
 import config
 import logging
-from logging.handlers import TimedRotatingFileHandler
+from logging.handlers import RotatingFileHandler
 
 class Sy_Log(object):
     ## Class Attribute
@@ -28,29 +28,22 @@ class Sy_Log(object):
     def setup(self):
         logging.basicConfig(level=self.__log_level)
         # 写入日志文件
-        fileTimeHandler = TimedRotatingFileHandler(self.__logfile, "D", 1)
-        fileTimeHandler.suffix = "%Y%m%d.log"
-        fileTimeHandler.setFormatter(self.__formatter)
-        fileTimeHandler.setLevel(self.__log_level)
+        # 根据日志文件大小自行分割 5M
+        fileHandler = RotatingFileHandler(self.__logfile, 'a', 5*1024*1024, 10)
+        fileHandler.setFormatter(self.__formatter)
+        fileHandler.setLevel(self.__log_level)
 
         # 创建一个handler，输出到控制台
         ch = logging.StreamHandler()
         ch.setFormatter(self.__formatter)
         ch.setLevel(self.__log_level)
-        self.__logger.addHandler(fileTimeHandler)
+        self.__logger.addHandler(fileHandler)
         self.__logger.addHandler(ch)
         self.__logger.propagate = False
 
     def error(self, msg=None):
         self.__error_num += 1
         self.__logger.error(msg);
-        # if not err_type in self.error_info:
-        #     return
-        # self.error_info[err_type]['num'] += 1
-        # if msg is None:
-        #     self.__logger.error("**{0}**".format(self.error_info[err_type]['msg']))
-        # else:
-        #     self.__logger.error("**{0}** #{1}#".format(err_type, msg))
 
     def info(self, msg):
         self.__info_num += 1
@@ -63,6 +56,5 @@ logger = Sy_Log()
 logger.setup()
 
 if __name__ == "__main__":
-    logger.info('one info')
-    logger.error('one_error')
-    print(logger.getLogInfo())
+    for i in range(1,10000):
+        logger.info('one info')
