@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-#coding=utf-8
+#-*-coding:utf-8-*-
+#!/usr/bin/python3.5
 
 from collections import deque
 
