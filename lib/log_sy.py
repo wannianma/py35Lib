@@ -1,7 +1,7 @@
 #-*-coding:utf-8-*-
 #!/usr/bin/python3.5
 
-import config
+from . import config
 import logging
 from logging.handlers import RotatingFileHandler
 
@@ -18,6 +18,7 @@ class Sy_Log(object):
         self.__logger = logging.getLogger(self.__log_name)
         self.__error_num = 0
         self.__info_num = 0
+        self.num = 0
         self.error_info = {
             'ERROR_RECONNECT': {
                 'msg': u'重连操作',

@@ -12,10 +12,6 @@ from lib.req_sy import Sy_Request
 from lib.orm_sy import Sy_Session
 from pprint import pprint
 
-# 修复插入数据库乱码问题
-reload(sys)
-sys.setdefaultencoding('utf-8')
-
 # decorator
 def used_time(fn):
     def wrapper(*args, **kwargs):
@@ -30,7 +26,7 @@ class BaseFetcher(object):
     ## Class Attribute
     name = 'Base'
 
-    def __init__(self):
+    def __init__(self, type):
         ## private variable begin with '__'
         # qiniu配置初始化
         self.bucket_name = BUCKET
@@ -42,12 +38,12 @@ class BaseFetcher(object):
         # 数据库orm连接
         self.session = Sy_Session.get_session()
         self.req = Sy_Request()
+        self.type = type
 
     @used_time
     def qiniu_fetch_file(self, url, key):
         try:
             ret, info = self.__bucket.fetch(url, self.bucket_name, key)
-            pprint(info)
             if ret and str(ret['key']) == key:
                 return True
             else:
@@ -66,8 +62,11 @@ class BaseFetcher(object):
 
     # 生成图片的唯一key值
     # date : 2016-09-18
-    def generate_pic_key(self, type):
-        pass
+    def generate_pic_key(self):
+        new_date_key = time.strftime('%Y-%m-%d',time.localtime(time.time()))
+        token = sha1('{0}{1}'.format(os.urandom(24), self.type).encode()).hexdigest()[0:16]
+        return self.upload_pre +  new_date_key + '/{0}.jpg'.format(token)
+        
 
     
 

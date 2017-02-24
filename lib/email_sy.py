@@ -12,10 +12,10 @@ from email.header import Header
 from email.mime.text import MIMEText
 from email.utils import parseaddr, formataddr
 from datetime import datetime
-from queue_sy import Sy_Queue
-from log_sy import logger
+from .queue_sy import Sy_Queue
+from .log_sy import logger
 import smtplib, json, time, atexit
-import config
+from . import config
 
 
 class Sy_Email(object):

@@ -7,10 +7,10 @@
 
 'GET HTML CONTENT'
 
-import config
+from . import config
 import subprocess
 import requests
-from log_sy import logger
+from .log_sy import logger
 import logging
 import random
 import hashlib

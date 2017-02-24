@@ -4,9 +4,11 @@
 from sqlalchemy import create_engine, Column, Integer, String, Sequence, Text, Index, SmallInteger, DECIMAL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from config import DB_URI
-from log_sy import logger
+import sys
+from pprint import pprint
+from .log_sy import logger
 import atexit
+from . import config
 
 # 创建对象的基类:
 Base_Model = declarative_base()
@@ -253,7 +255,7 @@ class Sy_Session(object):
     @staticmethod
     def get_session():
         if Sy_Session.__session is None:
-            eng = create_engine(DB_URI)
+            eng = create_engine(config.DB_URI)
             Base_Model = declarative_base()
             DB_session = sessionmaker(bind=eng)
             ## 生成数据库连接实例
