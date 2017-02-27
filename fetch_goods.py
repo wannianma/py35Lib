@@ -9,31 +9,6 @@ from BaseFetcher import BaseFetcher
 from lib.log_sy import logger
 from pprint import pprint 
 
-class GoodsPicDownloader(BaseFetcher):
-    def __init__(self, pre):
-        super(GoodsPicDownloader, self).__init__('pic')
-        self.key_pre = pre
-
-    def downPicsByQiniu(self):
-        keys = self.redis.keys(self.key_pre + '*')
-        if len(keys) < 100:
-            return
-        for key in keys:
-            pic_info = json.loads(self.redis.get(key))
-            pic_remote_urls = pic_info['origin_pics']
-            new_pic_urls = []
-            pub_date = pic_info['pubdate']
-            for pic_url in pic_remote_urls:
-                new_key = self.generate_pic_key(pub_date)
-                logger.info('new_pic_url: {0}{1}'.format('http://static.shenyou.tv/', new_key))
-                new_pic_urls.append('{0}{1}'.format('http://static.shenyou.tv/', new_key))
-                self.fetch_file(pic_url, new_key)
-            # 更新key值信息
-            pic_info['is_process'] = 1
-            pic_info['origin_pics'] = new_pic_urls
-            self.redis.delete(key)
-            self.redis.set(key.replace('pic_', 'old_pic_'), json.dumps(pic_info))
-
 class GoodsFetcher(BaseFetcher):
     def __init__(self, brand, cat, url):
         super(GoodsFetcher, self).__init__('good')
@@ -92,7 +67,6 @@ class GoodsFetcher(BaseFetcher):
                 self.session.commit()
                 # 将轮播图片和price信息存入redis，待下载和更新
                 self.redis.lpush(self.redis_list, json.dumps({good_id : {'thumb':good_thumb, 'pics': good_pics, 'id' : shopping_good.id}}))
-
 
     # 获取单一商品信息
     def fetchSingleGoodInfo(self, good_url):
@@ -202,22 +176,23 @@ class GoodsFetcher(BaseFetcher):
         return new_pics
 
   
-def fetchJD(brand, category, url):
+def fetchJD(brand, category, url, process_step = 'fetch'):
     good_fetch = GoodsFetcher(brand, category, url)
-    # good_fetch.fetchJdGoods()
-    good_fetch.updateGoodsExtraInfo()
-    #ids = ['11134879180', '1056783280']
-    # good_fetch.fetchGoodPrice(ids)
-    # good_fetch.fetchSingleGoodInfo('http://item.jd.com/3742530.html')
-    # good_fetch.fetchGoodPrice('http://item.jd.com/3243688.html')
-    
-
-if __name__ == '__main__':
-    store_type = sys.argv[1]
-    brand = '3'
-    category = '198'
-    list_url = 'https://list.jd.com/list.html?cat=670,671,672&ev=exbrand_48100&delivery=0&stock=1&sort=sort_totalsales15_desc&trans=1&JL=2_1_0#J_crumbsBar'
-    if store_type == 'jd':
-        fetchJD(brand, category, list_url)
+    if process_step == 'fetch':
+        good_fetch.fetchJdGoods()
     else:
-        pass
+        good_fetch.updateGoodsExtraInfo()
+    
+# 四个参数
+# 1 方法类型，fetch | process
+# 2 商品列表地址， url
+# 3 商品分类，category
+# 4 品牌名称， 
+if __name__ == '__main__':
+    if len(sys.argv) != 5:
+        logger.error('参数输入有误')
+    process_step = sys.argv[1]
+    url = sys.argv[2]
+    brand = sys.argv[3]
+    category = sys.argv[4]
+    fetchJD(brand, category, url, process_step)
