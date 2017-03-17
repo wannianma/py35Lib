@@ -192,7 +192,7 @@ if __name__ == '__main__':
     if len(sys.argv) != 5:
         logger.error('参数输入有误')
     process_step = sys.argv[1]
-    url = sys.argv[2]
-    brand = sys.argv[3]
-    category = sys.argv[4]
+    brand = sys.argv[2]
+    category = sys.argv[3]
+    url = sys.argv[4]    
     fetchJD(brand, category, url, process_step)
