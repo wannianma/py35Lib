@@ -5,6 +5,7 @@ import json, time, sys, os, re
 from hashlib import sha1
 from BaseFetcher import BaseFetcher
 from lib.log_sy import logger
+from lib.orm_sy import Hero
 from pprint import pprint 
 
 class HeroFetcher(BaseFetcher):
@@ -20,14 +21,24 @@ class HeroFetcher(BaseFetcher):
     def getBaseJson(self):
         try:
             heros = self.req.get_html(self.hero_js, is_json=True)
-            self.heros = heros
             items = self.req.get_html(self.item_js, is_json=True)
             summoners = self.req.get_html(self.summoner_js, is_json=True)
             mings = self.req.get_html(self.ming_js, is_json=True)
         except Exception as e:
             logger.error('王者荣耀 Base Json Fetche error:' + e)
+        self.heros = []
+        # 对hero添加topic_id映射
+        for hero in heros:
+            tmp_hero = hero
+            hero_id = 0
+            ms_hero = self.session.query(Hero).filter(Hero.ename == tmp_hero['ename']).first()
+            if not ms_hero is None:
+                hero_id = ms_hero.topicid
+            tmp_hero['id'] = hero_id
+            self.heros.append(tmp_hero)
+            
         # 持久json文件
-        self._saveJson(json.dumps(heros), 'hero.json')
+        self._saveJson(json.dumps(self.heros), 'hero.json')
         self._saveJson(json.dumps(items), 'item.json')
         self._saveJson(json.dumps(summoners), 'summoner.json')
         self._saveJson(json.dumps(mings), 'ming.json')      
@@ -55,7 +66,7 @@ class HeroFetcher(BaseFetcher):
             try:
                 soup = BeautifulSoup(html, 'html.parser', from_encoding='gbk')
                 beijing = soup.find(class_='story-info info').find(class_='nr').p
-                hero_res['id'] = 178
+                hero_res['id'] = hero_id
                 #hero_res['desc'] = beijing.text
                 skills = soup.find(class_='skill-show').find_all(class_='show-list')
                 skill_imgs = soup.find(class_='skill-u1').find_all('li')
@@ -69,13 +80,24 @@ class HeroFetcher(BaseFetcher):
                     tmp['p3'] = skill.find(class_='skill-p3').text
                     tmp['img'] = skill_imgs[idx].img['src']
                     skill_arr.append(tmp)
-                pprint(skill_arr)
                 hero_res['skills'] = skill_arr
                 # 组装相关英雄
                 rel_hero_arr = []
                 rel_hreos = soup.find_all(class_='hero-list hero-relate-list fl')
                 for hero in rel_hreos:
-                    rel_hero_arr.append(hero['data-relatename'])
+                    str_ids = hero['data-relatename']
+                    str_new_ids = ''
+                    rel_hero_arr.append(str_ids)
+                    # 处理英雄映射ID
+                    for id in str_ids.split('|'):
+                        ms_hero = self.session.query(Hero).filter(Hero.ename == id).first()
+                        if not ms_hero is None:
+                            str_new_ids += str(ms_hero.topicid)
+                            str_new_ids += '|'
+                    str_new_ids = str_new_ids[:-1]
+                    rel_hero_arr.append(str_new_ids)
+                pprint(rel_hero_arr)               
+
                 # 组装出装
                 hero_res['rel_heros'] = rel_hero_arr
                 equipment_arr = []
