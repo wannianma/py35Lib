@@ -235,6 +235,20 @@ class Shopping_Goods(Base_Model):
     updatetime = Column(Integer, default=0)
     views = Column(String(50))
     status = Column(SmallInteger, default=99)
+
+# sy_hero表
+class Hero(Base_Model):
+    __tablename__ = 'sy_hero'
+
+    topicid = Column(Integer, primary_key=True)
+    content = Column(Text)
+    video_id = Column(Integer)
+    ename = Column(Integer)
+    cname = Column(String(50))
+    title = Column(String(50))
+    hero_type = Column(Integer)
+    new_type = Column(Integer)
+
     
 # 数据库连接类
 class Sy_Session(object):
