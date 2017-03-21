@@ -1,0 +1,5 @@
+pip3.5 install BeautifulSoup4
+pip3.5 install qiniu
+pip3.5 install redis
+pip3.5 install sqlalchemy
+pip3.5 install mysqlclient
