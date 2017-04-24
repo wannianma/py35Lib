@@ -15,8 +15,8 @@ class HeroFetcher(BaseFetcher):
         self.item_js = 'http://pvp.qq.com/web201605/js/item.json';
         self.summoner_js = 'http://pvp.qq.com/web201605/js/summoner.json';
         self.ming_js = 'http://pvp.qq.com/web201605/js/ming.json';
-        self.save_path = '/data/wwwroot/shenyou/statics/game/pvp'
-        self.hero_length = 64
+        self.save_path = '/data/wwwroot/ShenYou/statics/game/pvp'
+        self.hero_length = 65
         self.heros = None
 
     def getBaseJson(self):
